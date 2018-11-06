@@ -1,39 +1,61 @@
 
 clear all; close all;
 
-% load sample file
-load('mitdb_100.mat');
+% load sample files
+dataDir = 'testData';
+fileList = dir(dataDir);
 
-out = compress_ecg(t, signal(:,1), Fs);
+% compression parameters
+params.ENERGY_THRESH = 0.9; 
+params.QUANT_PRECISION = 8; % bits
 
-% calculate compression ratio
-CR = length(signal(:,1))/length(out.dct_coeff);
+if length(fileList) > 2
+    
+    fileList(1:2) = [];
+    
+    % loop all test files
+    for n = 1:length(fileList)
+        
+        load([dataDir '/' fileList(n).name]);
+        sig = signal(:,1)';
 
-% plot results
+%         load('C:\Users\rli\Box\Physiologic Algorithms\Ronny\Physiologic signal compression\testData\RW2-000405016_DecodedRecords_2017-10-02T17-14-56.mat');
+%         sig = data.ECR.ecg{185};
+        
+        % z-score transformation on signal of interest
+        sig = (sig - mean(sig))/std(sig);
 
-figure;
-subplot(3,1,1);
-plot(out.y_norm);
-grid on;
-hold on;
-title('Normalized ECG signal');
-xlabel('Sample #');
+        [B0, B_QUANT, B_RANGE, ZERO] = compress(sig, params);
+        
+        % calculate compression ratio
+        num_bytes_original = length(sig)*8; % 8 bytes per double        
+        num_bytes_compressed = length(B_QUANT)*(params.QUANT_PRECISION/8) + (length(ZERO)/8) + (length(B_RANGE)*8);
+        CR = num_bytes_original/num_bytes_compressed;
+        
+        [Y,B_RECON] = decompress(B_QUANT, B_RANGE, ZERO, params);
 
-subplot(3,1,2);
-stem(out.dct_coeff, '-o');
-grid on;
-title('Discrete cosine transform coefficients of original ECG');
-xlabel('Sample #');
-
-% plot reconstructed signal with original
-subplot(3,1,3);
-title(['Compression Ratio = ' num2str(CR) ':1']);
-plot(out.y_norm); hold on;
-plot(out.y_new);
-grid on;
-legend('Original','Reconstructed');
-
-
-
-% TODO: calculate RMSE
+        % calculate RMSE
+        y = sig;
+        MSE = sum( (y - Y).^2 );
+        RMSE = sqrt(MSE);
+        
+        % calculate PRD
+        PRD = sqrt(MSE/sum(y.^2));
+        
+        % plot results
+        figure; subplot(2,1,1);
+        plot(B0);
+        hold on; plot(B_RECON);
+        title('DCT Coefficients');
+        legend('Original','Reconstructed');
+        
+        subplot(2,1,2);
+        plot(y); 
+        hold on; plot(Y);
+        title(sprintf('ECG signal (Compression ratio = %0.2f:1, PRD = %0.2f)', CR, PRD));
+        legend('Original','Reconstructed');
+        
+    end
+    
+end
 
