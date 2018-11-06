@@ -31,4 +31,4 @@ Configurable compression parameters:
 
 Percent root mean square difference (PRD) is an accuracy metric defined as the square root of the mean square error divided to the total energy ratio.
 
-![Result] (/result.png)
+![](https://github.com/ronnyxli/ecgCompression/blob/master/result.png)
