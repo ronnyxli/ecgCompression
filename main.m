@@ -18,9 +18,6 @@ if length(fileList) > 2
         
         load([dataDir '/' fileList(n).name]);
         sig = signal(:,1)';
-
-%         load('C:\Users\rli\Box\Physiologic Algorithms\Ronny\Physiologic signal compression\testData\RW2-000405016_DecodedRecords_2017-10-02T17-14-56.mat');
-%         sig = data.ECR.ecg{185};
         
         % z-score transformation on signal of interest
         sig = (sig - mean(sig))/std(sig);
@@ -52,6 +49,7 @@ if length(fileList) > 2
         subplot(2,1,2);
         plot(y); 
         hold on; plot(Y);
+        xlabel('Sample #');
         title(sprintf('ECG signal (Compression ratio = %0.2f:1, PRD = %0.2f)', CR, PRD));
         legend('Original','Reconstructed');
         
