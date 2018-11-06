@@ -1,2 +1,3 @@
 # ecgCompression
-Various methods for compressing ECG signals
+
+ECG compression using discrete cosine transform.
