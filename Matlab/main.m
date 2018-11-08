@@ -6,8 +6,9 @@ dataDir = 'testData';
 fileList = dir(dataDir);
 
 % compression parameters
-params.ENERGY_THRESH = 0.9; 
+params.ENERGY_THRESH = 0.90;
 params.QUANT_PRECISION = 8; % bits
+params.WINDOW_LENGTH = 2; % seconds
 
 if length(fileList) > 2
     
@@ -16,8 +17,11 @@ if length(fileList) > 2
     % loop all test files
     for n = 1:length(fileList)
         
-        load([dataDir '/' fileList(n).name]);
-        sig = signal(:,1)';
+%         load([dataDir '/' fileList(n).name]);
+%         sig = signal(1:720,1)';
+        
+        load('C:\Users\rli\Box\Physiologic Algorithms\Ronny\Physiologic signal compression\testData\RW2-000405016_DecodedRecords_2017-10-02T17-14-56.mat');
+        sig = data.ECR.ecg{49};%(1:512);
         
         % z-score transformation on signal of interest
         sig = (sig - mean(sig))/std(sig);
@@ -25,13 +29,13 @@ if length(fileList) > 2
         [B0, B_QUANT, B_RANGE, ZERO] = compress(sig, params);
         
         % calculate compression ratio
-        num_bytes_original = length(sig)*8; % 8 bytes per double        
+        num_bytes_original = length(sig)*2; % 2 bytes per int16        
         num_bytes_compressed = length(B_QUANT)*(params.QUANT_PRECISION/8) + (length(ZERO)/8) + (length(B_RANGE)*8);
         CR = num_bytes_original/num_bytes_compressed;
         
         [Y,B_RECON] = decompress(B_QUANT, B_RANGE, ZERO, params);
 
-        % calculate RMSE
+        % calculate [R]MSE
         y = sig;
         MSE = sum( (y - Y).^2 );
         RMSE = sqrt(MSE);
