@@ -20,9 +20,6 @@ if length(fileList) > 2
         load([dataDir '/' fileList(n).name]);
         sig = signal(1:2160,1);
         
-%         load('C:\Users\rli\Box\Physiologic Algorithms\Ronny\Physiologic signal compression\testData\RW2-000405016_DecodedRecords_2017-10-02T17-14-56.mat');
-%         sig = data.ECR.ecg{40};
-        
 %         % write signal to csv
 %         dlmwrite('ecg.csv', sig, 'delimiter', ',', 'precision', 8);
         
