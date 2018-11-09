@@ -2,7 +2,7 @@
 clear all; close all;
 
 % load sample files
-dataDir = '../testData';
+dataDir = 'testData';
 fileList = dir(dataDir);
 
 % compression parameters
@@ -18,7 +18,13 @@ if length(fileList) > 2
     for n = 1:length(fileList)
         
         load([dataDir '/' fileList(n).name]);
-        sig = signal(:,1)';
+        sig = signal(1:2160,1);
+        
+%         load('C:\Users\rli\Box\Physiologic Algorithms\Ronny\Physiologic signal compression\testData\RW2-000405016_DecodedRecords_2017-10-02T17-14-56.mat');
+%         sig = data.ECR.ecg{40};
+        
+%         % write signal to csv
+%         dlmwrite('ecg.csv', sig, 'delimiter', ',', 'precision', 8);
         
         % z-score transformation on signal of interest
         sig = (sig - mean(sig))/std(sig);
